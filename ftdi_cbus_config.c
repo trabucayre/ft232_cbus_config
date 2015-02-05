@@ -52,8 +52,9 @@ int main(void)
 	}
 
 	/* some change */
-	ret = ftdi_set_eeprom_value(ftdi, VENDOR_ID, 0x403);
-	ret = ftdi_set_eeprom_value(ftdi, PRODUCT_ID, 0x6001);
+	/* example changes */
+	/*ret = ftdi_set_eeprom_value(ftdi, VENDOR_ID, 0x403);
+	ret = ftdi_set_eeprom_value(ftdi, PRODUCT_ID, 0x6001);*/
 	ret = ftdi_set_eeprom_value(ftdi, CBUS_FUNCTION_0, CBUS_IOMODE);
 	if (ret != 0) {
 		printf("FTDI set CBUS0 failed: %s\n",
