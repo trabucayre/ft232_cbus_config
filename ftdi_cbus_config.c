@@ -20,12 +20,33 @@
 #include <libusb.h>
 #include <stdlib.h>
 
-int main(void)
+int main(int argc, char **argv)
 {
-	int ret;
+	int ret, i;
 	struct ftdi_context *ftdi;
 	int vendor_id = 0x403, product_id = 0x6001;
+	int iomode;
+
+	if (argc < 3) {
+		printf("%s -v vid -p pid\n", argv[0]);
+		return EXIT_FAILURE;
+	}
+
+	for (i = 1; i < argc; i+=2) {
+		if (argv[i][1] == 'v')
+			sscanf(argv[i+1], "%x", &vendor_id);
+		if (argv[i][1] == 'p')
+			sscanf(argv[i+1], "%x", &product_id);
+	}
+
+	printf("vendor %x product %x\n", vendor_id, product_id);
+
 	int decode_verbose = 1;
+
+	if (product_id == 0x6015) // CBUSX
+		iomode = CBUSX_IOMODE;
+	else // CBUS
+		iomode = CBUS_IOMODE;
 
 	if ((ftdi = ftdi_new()) == NULL) {
 		printf("FTDI context allocation failed\n");
@@ -55,32 +76,47 @@ int main(void)
 	/* example changes */
 	/*ret = ftdi_set_eeprom_value(ftdi, VENDOR_ID, 0x403);
 	ret = ftdi_set_eeprom_value(ftdi, PRODUCT_ID, 0x6001);*/
-	ret = ftdi_set_eeprom_value(ftdi, CBUS_FUNCTION_0, CBUS_IOMODE);
+	/*ret = ftdi_set_eeprom_value(ftdi, CHANNEL_A_TYPE, 1);
+	ret = ftdi_set_eeprom_value(ftdi, CHANNEL_A_DRIVER, 0);
+	ret = ftdi_set_eeprom_value(ftdi, SELF_POWERED, 0);
+	ret = ftdi_set_eeprom_value(ftdi, SELF_POWERED, 0);
+	ret = ftdi_set_eeprom_value(ftdi, MAX_POWER, 90);
+	ret = ftdi_set_eeprom_value(ftdi, HIGH_CURRENT_A, 1);*/
+	ret = ftdi_set_eeprom_value(ftdi, CBUS_FUNCTION_0, iomode);
 	if (ret != 0) {
 		printf("FTDI set CBUS0 failed: %s\n",
 		       ftdi_get_error_string(ftdi));
 		goto cleanup;
 	}
 
-	ret = ftdi_set_eeprom_value(ftdi, CBUS_FUNCTION_1, CBUS_IOMODE);
+	ret = ftdi_set_eeprom_value(ftdi, CBUS_FUNCTION_1, iomode);
 	if (ret != 0) {
 		printf("FTDI set CBUS1 failed: %s\n",
 		       ftdi_get_error_string(ftdi));
 		goto cleanup;
 	}
 
-	ret = ftdi_set_eeprom_value(ftdi, CBUS_FUNCTION_2, CBUS_IOMODE);
+	ret = ftdi_set_eeprom_value(ftdi, CBUS_FUNCTION_2, iomode);
 	if (ret != 0) {
 		printf("FTDI set CBUS2 failed: %s\n",
 		       ftdi_get_error_string(ftdi));
 		goto cleanup;
 	}
 
-	ret = ftdi_set_eeprom_value(ftdi, CBUS_FUNCTION_3, CBUS_IOMODE);
+	ret = ftdi_set_eeprom_value(ftdi, CBUS_FUNCTION_3, iomode);
 	if (ret != 0) {
 		printf("FTDI set CBUS3 failed: %s\n",
 		       ftdi_get_error_string(ftdi));
 		goto cleanup;
+	}
+
+	if (product_id != 0x6015) {
+		ret = ftdi_set_eeprom_value(ftdi, CBUS_FUNCTION_4, CBUS_CLK6);
+		if (ret != 0) {
+			printf("FTDI set CBUS3 failed: %s\n",
+			       ftdi_get_error_string(ftdi));
+			goto cleanup;
+		}
 	}
 
 	/* generate new eeprom */
