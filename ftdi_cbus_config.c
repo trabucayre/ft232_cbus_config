@@ -1,7 +1,7 @@
 /* ftdi_cbus_config.c
- * tool used to change FT232 CBUS pins configuration
+ * tool used to change FT232/FT230X CBUS pins configuration
  * 
- * (C) 2015 by Gwenhael Goavec-Merou <gwen@trabucayre.com>
+ * (C) 2015-2019 by Gwenhael Goavec-Merou <gwen@trabucayre.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
